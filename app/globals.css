@@ -1,75 +1,80 @@
 @import "tailwindcss";
 
-@theme {
-  --color-primary-50: #f0f9ff;
-  --color-primary-100: #e0f2fe;
-  --color-primary-200: #bae6fd;
-  --color-primary-300: #7dd3fc;
-  --color-primary-400: #38bdf8;
-  --color-primary-500: #0ea5e9;
-  --color-primary-600: #0284c7;
-  --color-primary-700: #0369a1;
-  --color-primary-800: #075985;
-  --color-primary-900: #0c4a6e;
+@custom-variant dark (&:where(.dark, .dark *));
 
-  --color-success-light: #d1fae5;
-  --color-success: #10b981;
-  --color-success-dark: #065f46;
+/* Tokens: paleta de referencia validada (dataviz). Light por defecto. */
+:root {
+  color-scheme: light;
+  --page: #f6f6f3;
+  --surface: #fcfcfb;
+  --surface-2: #f0efec;
+  --ink: #0b0b0b;
+  --ink-2: #52514e;
+  --muted: #7a7873;
+  --grid: #e1e0d9;
+  --line: #c3c2b7;
+  --border: rgba(11, 11, 11, 0.1);
+  --accent: #2a78d6;
+  --accent-ink: #ffffff;
+  --s1: #2a78d6;
+  --s2: #eb6834;
+  --s3: #1baf7a;
+  --good: #006300;
+  --good-mark: #0ca30c;
+  --bad: #c22f2f;
+  --warn-mark: #fab219;
+}
 
-  --color-warning-light: #fef3c7;
-  --color-warning: #f59e0b;
-  --color-warning-dark: #92400e;
+.dark {
+  color-scheme: dark;
+  --page: #0d0d0d;
+  --surface: #1a1a19;
+  --surface-2: #262624;
+  --ink: #f0efec;
+  --ink-2: #c3c2b7;
+  --muted: #9a9890;
+  --grid: #2c2c2a;
+  --line: #383835;
+  --border: rgba(255, 255, 255, 0.1);
+  --accent: #3987e5;
+  --accent-ink: #ffffff;
+  --s1: #3987e5;
+  --s2: #d95926;
+  --s3: #199e70;
+  --good: #0ca30c;
+  --good-mark: #0ca30c;
+  --bad: #e66767;
+  --warn-mark: #fab219;
+}
 
-  --color-danger-light: #fee2e2;
-  --color-danger: #ef4444;
-  --color-danger-dark: #991b1b;
-
-  --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-  --shadow-card-hover: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --shadow-modal: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+@theme inline {
+  --color-page: var(--page);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-muted: var(--muted);
+  --color-grid: var(--grid);
+  --color-line: var(--line);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-s1: var(--s1);
+  --color-s2: var(--s2);
+  --color-s3: var(--s3);
+  --color-good: var(--good);
+  --color-good-mark: var(--good-mark);
+  --color-bad: var(--bad);
+  --color-warn-mark: var(--warn-mark);
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
 
 body {
-  background-color: #f9fafb;
-  color: #111827;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  background: var(--page);
+  color: var(--ink);
+  -webkit-tap-highlight-color: transparent;
 }
 
-.dark body {
-  background-color: #111827;
-  color: #f9fafb;
-}
-
-/* react-day-picker custom styles */
-.rdp-custom {
-  --rdp-cell-size: 40px;
-  --rdp-accent-color: #0ea5e9;
-  --rdp-background-color: #e0f2fe;
-}
-
-.rdp-custom .rdp-day_selected {
-  background-color: var(--rdp-accent-color);
-  color: white;
-}
-
-.rdp-custom .rdp-day_selected:hover {
-  background-color: #0284c7;
-}
-
-.rdp-custom .rdp-button:hover:not([disabled]):not(.rdp-day_selected) {
-  background-color: var(--rdp-background-color);
-}
-
-.rdp-custom .rdp-head_cell {
-  font-weight: 600;
-  font-size: 0.875rem;
-  color: #6b7280;
-}
-
-.rdp-custom .rdp-cell {
-  padding: 0;
-}
-
-.rdp-custom .rdp-day {
-  border-radius: 0.5rem;
+.tabular {
+  font-variant-numeric: tabular-nums;
 }

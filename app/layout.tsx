@@ -1,36 +1,36 @@
-import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
-import './globals.css';
-import { Header } from '@/components/layout/header';
-import { ExpenseProvider } from '@/context/expense-context';
-import { ThemeProvider } from '@/context/theme-context';
-
-const inter = Inter({ subsets: ['latin'] });
+import type { Metadata, Viewport } from 'next'
+import { FinanceProvider } from '@/context/finance-context'
+import { AppShell } from '@/components/app-shell'
+import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'ExpenseTracker - Manage Your Personal Finances',
-  description: 'Track, analyze, and manage your expenses with ease',
-};
+  title: 'Finanzas Familia',
+  description: 'Presupuesto vs. Real multimoneda (USD · EUR · ARS)',
+}
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#f6f6f3' },
+    { media: '(prefers-color-scheme: dark)', color: '#0d0d0d' },
+  ],
+}
+
+// Aplica el tema guardado (o el del sistema) antes de pintar, sin parpadeo.
+const themeScript = `try{var t=localStorage.getItem('finanzas-familia:theme');if(t==='dark'||(!t&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.classList.add('dark')}catch(e){}`
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="dark">
-      <body className={inter.className}>
-        <ExpenseProvider>
-          <div className="min-h-screen flex flex-col">
-            <Header />
-            <main className="flex-1">
-              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                {children}
-              </div>
-            </main>
-          </div>
-        </ExpenseProvider>
+    <html lang="es" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
+      <body className="min-h-dvh font-sans antialiased">
+        <FinanceProvider>
+          <AppShell>{children}</AppShell>
+        </FinanceProvider>
       </body>
     </html>
-  );
+  )
 }

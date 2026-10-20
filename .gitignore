@@ -1,42 +1,34 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
 # dependencies
-/node_modules
-/.pnp
-.pnp.js
-.yarn/install-state.gz
-
-# testing
-/coverage
+node_modules/
 
 # next.js
-/.next/
-/out/
+.next/
+out/
 
 # production
-/build
-
-# misc
-.DS_Store
-*.pem
-
-# debug
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# local env files
-.env*.local
-
-# vercel
-.vercel
+build/
 
 # typescript
 *.tsbuildinfo
 next-env.d.ts
 
-# claude code
-.claude/
+# env files
+.env*
+!.env.example
 
-# misc files
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# misc
+.DS_Store
+Thumbs.db
+*.pem
+.vercel
+
+# Windows: file created by redirecting to "nul"
 nul
+
+# personal financial data
+finanzas_familiares_*.json

@@ -1,44 +1,29 @@
 {
-  "name": "expense-tracker-ai",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "name": "finanzas-familia",
+  "version": "0.1.0",
+  "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "typecheck": "tsc --noEmit",
+    "test": "node --experimental-strip-types --test lib/__tests__/*.test.ts"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "dependencies": {
-    "@hookform/resolvers": "^5.2.2",
-    "@types/node": "^25.0.2",
-    "@types/react": "^19.2.7",
-    "@types/react-dom": "^19.2.3",
-    "clsx": "^2.1.1",
-    "date-fns": "^4.1.0",
-    "lucide-react": "^0.561.0",
-    "next": "^16.0.10",
-    "papaparse": "^5.5.3",
-    "react": "^19.2.3",
-    "react-day-picker": "^9.12.0",
-    "react-dom": "^19.2.3",
-    "react-hook-form": "^7.68.0",
-    "recharts": "^3.6.0",
-    "tailwind-merge": "^3.4.0",
-    "typescript": "^5.9.3",
-    "zod": "^4.2.1"
+    "lucide-react": "^1.59.0",
+    "next": "^15.5.28",
+    "papaparse": "^5.7.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "recharts": "^3.10.1"
   },
   "devDependencies": {
-    "@tailwindcss/forms": "^0.5.10",
-    "@tailwindcss/postcss": "^4.1.18",
+    "@tailwindcss/postcss": "^4.3.3",
+    "@types/node": "^22.20.5",
     "@types/papaparse": "^5.5.2",
-    "autoprefixer": "^10.4.23",
-    "eslint": "^9.39.2",
-    "eslint-config-next": "^16.0.10",
-    "postcss": "^8.5.6",
-    "tailwindcss": "^4.1.18"
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^5.9.3"
   }
 }
