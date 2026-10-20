@@ -5,16 +5,16 @@ import { Plus, Trash2 } from 'lucide-react'
 import type { Currency, Holding, HoldingKind } from '@/types/finance'
 import { useFinance } from '@/context/finance-context'
 import { summarizePortfolio } from '@/lib/calc'
-import { normalizeDecimal } from '@/lib/money'
+import { convert, normalizeDecimal } from '@/lib/money'
 import { monthLabel, newId } from '@/lib/months'
 import { CURRENCIES, HOLDING_KINDS, PLATFORMS } from '@/constants/catalog'
 import { HorizontalBars } from '@/components/charts'
-import { Button, Card, CardTitle, EmptyState, Money, MoneyInput, Segmented, Select, cn, inputClass } from '@/components/ui/primitives'
+import { Button, Card, CardTitle, DeleteButton, EmptyState, Money, MoneyInput, Segmented, Select, cn, inputClass } from '@/components/ui/primitives'
 
 type KindFilter = 'todos' | HoldingKind
 
 function HoldingRow({ h }: { h: Holding }) {
-  const { dispatch } = useFinance()
+  const { dispatch, currentMonth } = useFinance()
   const save = (patch: Partial<Holding>) => dispatch({ type: 'upsertHolding', holding: { ...h, ...patch } })
   const [asset, setAsset] = useState<string | null>(null)
   const [qty, setQty] = useState<string | null>(null)
@@ -58,16 +58,20 @@ function HoldingRow({ h }: { h: Holding }) {
         aria-invalid={qtyInvalid}
         className={cn(inputClass, 'tabular text-right', qtyInvalid && 'outline-2 outline-bad')}
       />
-      <Select<Currency> label="Moneda" value={h.currency} options={CURRENCIES} onChange={(currency) => save({ currency })} />
+      <Select<Currency>
+        label="Moneda"
+        value={h.currency}
+        options={CURRENCIES}
+        onChange={(currency) => save({ currency, value: convert(h.value, h.currency, currency, currentMonth.rates) })}
+      />
       <MoneyInput label={`Valor actual de ${h.asset}`} cents={h.value} currency={h.currency} onCommit={(value) => save({ value })} />
-      <button
-        type="button"
-        aria-label={`Eliminar ${h.asset}`}
-        onClick={() => dispatch({ type: 'deleteHolding', id: h.id })}
-        className="grid size-8 place-items-center justify-self-end rounded-lg text-muted hover:text-bad"
+      <DeleteButton
+        label={`Eliminar ${h.asset}`}
+        onConfirm={() => dispatch({ type: 'deleteHolding', id: h.id })}
+        className="grid size-8 place-items-center justify-self-end rounded-lg"
       >
         <Trash2 className="size-4" />
-      </button>
+      </DeleteButton>
     </li>
   )
 }

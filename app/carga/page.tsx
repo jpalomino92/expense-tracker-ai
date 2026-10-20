@@ -6,12 +6,12 @@ import { Check, ChevronDown, Plus, Trash2, Undo2 } from 'lucide-react'
 import type { BlockId, Currency, ExpenseItem, IncomeItem } from '@/types/finance'
 import { useFinance } from '@/context/finance-context'
 import { expenseTotals, incomeTotals, itemStatus, pendingOf } from '@/lib/calc'
-import { consolidate, type CurrencyTotals } from '@/lib/money'
+import { consolidate, convert, type CurrencyTotals } from '@/lib/money'
 import { newId } from '@/lib/months'
 import { BLOCK_META, CURRENCIES, FUNDING_SOURCE_LIST, INCOME_SOURCES } from '@/constants/catalog'
 import { MonthToolbar } from '@/components/month-toolbar'
 import {
-  Button, Card, EmptyState, Money, MoneyInput, Segmented, Select, StatusBadge, cn, inputClass,
+  Button, Card, DeleteButton, EmptyState, Money, MoneyInput, Segmented, Select, StatusBadge, cn, inputClass,
 } from '@/components/ui/primitives'
 
 type Tab = 'INGRESOS' | BlockId
@@ -157,7 +157,19 @@ function ExpenseRow({ item, locked }: { item: ExpenseItem; locked: boolean }) {
           </label>
           <label className="space-y-1">
             <span className="text-muted">Moneda</span>
-            <Select<Currency> label="Moneda" value={item.currency} options={CURRENCIES} disabled={locked} onChange={(currency) => save({ currency })} />
+            <Select<Currency>
+              label="Moneda"
+              value={item.currency}
+              options={CURRENCIES}
+              disabled={locked}
+              onChange={(currency) =>
+                save({
+                  currency,
+                  budget: convert(item.budget, item.currency, currency, currentMonth.rates),
+                  actual: convert(item.actual, item.currency, currency, currentMonth.rates),
+                })
+              }
+            />
           </label>
           <div className="flex flex-col justify-end gap-2">
             <label className="flex items-center gap-2">
@@ -173,9 +185,14 @@ function ExpenseRow({ item, locked }: { item: ExpenseItem; locked: boolean }) {
             <span className="text-muted">
               Falta pagar: <Money cents={pendingOf(item)} currency={item.currency} />
             </span>
-            <Button size="sm" variant="danger" disabled={locked} onClick={() => dispatch({ type: 'deleteExpense', monthId, id: item.id })}>
+            <DeleteButton
+              label={`Eliminar ${item.name}`}
+              disabled={locked}
+              onConfirm={() => dispatch({ type: 'deleteExpense', monthId, id: item.id })}
+              className="inline-flex h-8 items-center gap-1.5 rounded-lg px-2.5 font-medium"
+            >
               <Trash2 className="size-3.5" /> Eliminar
-            </Button>
+            </DeleteButton>
           </div>
         </div>
       )}
@@ -251,21 +268,26 @@ function IncomeRow({ item, locked }: { item: IncomeItem; locked: boolean }) {
     <li className="grid grid-cols-2 items-center gap-2 border-b border-border py-3 last:border-0 sm:grid-cols-[1fr_7rem_6rem_9rem_7rem_2rem]">
       <TextInput value={item.label} label="Descripción" disabled={locked} onCommit={(label) => save({ label })} className="col-span-2 font-medium sm:col-span-1" />
       <Select label="Fuente" value={item.source} options={INCOME_SOURCES} disabled={locked} onChange={(source) => save({ source })} />
-      <Select<Currency> label="Moneda" value={item.currency} options={CURRENCIES} disabled={locked} onChange={(currency) => save({ currency })} />
+      <Select<Currency>
+        label="Moneda"
+        value={item.currency}
+        options={CURRENCIES}
+        disabled={locked}
+        onChange={(currency) => save({ currency, amount: convert(item.amount, item.currency, currency, currentMonth.rates) })}
+      />
       <MoneyInput label={`Monto ${item.label}`} cents={item.amount} currency={item.currency} disabled={locked} onCommit={(amount) => save({ amount })} />
       <label className="flex items-center gap-2 text-sm">
         <input type="checkbox" checked={item.received} disabled={locked} onChange={(e) => save({ received: e.target.checked })} className="size-4" />
         Recibido
       </label>
-      <button
-        type="button"
+      <DeleteButton
+        label={`Eliminar ${item.label}`}
         disabled={locked}
-        aria-label={`Eliminar ${item.label}`}
-        onClick={() => dispatch({ type: 'deleteIncome', monthId: currentMonth.id, id: item.id })}
-        className="grid size-8 place-items-center justify-self-end rounded-lg text-muted hover:text-bad disabled:opacity-40"
+        onConfirm={() => dispatch({ type: 'deleteIncome', monthId: currentMonth.id, id: item.id })}
+        className="grid size-8 place-items-center justify-self-end rounded-lg"
       >
         <Trash2 className="size-4" />
-      </button>
+      </DeleteButton>
     </li>
   )
 }

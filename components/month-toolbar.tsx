@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { CopyPlus, Lock, LockOpen, X } from 'lucide-react'
 import { useFinance } from '@/context/finance-context'
 import { formatRate, parseRate } from '@/lib/money'
-import { latestMonth, monthLabel } from '@/lib/months'
+import { monthLabel } from '@/lib/months'
 import { Button, inputClass, cn } from '@/components/ui/primitives'
 import type { MonthRates } from '@/types/finance'
 
@@ -47,11 +47,11 @@ function RateField({
 
 /** Tipos de cambio del mes + cerrar/abrir mes + clonar. */
 export function MonthToolbar() {
-  const { state, dispatch, currentMonth, nextCloneId } = useFinance()
+  const { dispatch, currentMonth, nextCloneId, nextCloneExists } = useFinance()
   const [cloneOpen, setCloneOpen] = useState(false)
   const [onlyFixed, setOnlyFixed] = useState(true)
   const { rates, locked, id } = currentMonth
-  const source = latestMonth(state.months)!
+  const source = currentMonth
 
   const setRates = (patch: Partial<MonthRates>) =>
     dispatch({ type: 'setRates', monthId: id, rates: { ...rates, ...patch } })
@@ -74,9 +74,15 @@ export function MonthToolbar() {
           {locked ? <LockOpen className="size-3.5" /> : <Lock className="size-3.5" />}
           {locked ? 'Reabrir mes' : 'Cerrar mes'}
         </Button>
-        <Button size="sm" variant="primary" onClick={() => setCloneOpen(true)}>
+        <Button
+          size="sm"
+          variant="primary"
+          disabled={nextCloneExists}
+          onClick={() => setCloneOpen(true)}
+          title={nextCloneExists ? `${monthLabel(nextCloneId)} ya existe` : `Crear ${monthLabel(nextCloneId)} a partir de ${monthLabel(id)}`}
+        >
           <CopyPlus className="size-3.5" />
-          Clonar mes anterior
+          Crear {monthLabel(nextCloneId, true)}
         </Button>
       </div>
 
@@ -112,7 +118,7 @@ export function MonthToolbar() {
               <Button
                 variant="primary"
                 onClick={() => {
-                  dispatch({ type: 'cloneLatest', onlyFixed })
+                  dispatch({ type: 'cloneMonth', sourceId: source.id, onlyFixed })
                   setCloneOpen(false)
                 }}
               >

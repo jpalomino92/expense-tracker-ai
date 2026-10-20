@@ -51,6 +51,33 @@ export function Button({
   )
 }
 
+/**
+ * Botón de papelera con confirmación en dos clics: el primero lo arma (se pone
+ * rojo), el segundo elimina. Se desarma al perder el foco.
+ */
+export function DeleteButton({ label, onConfirm, disabled, children, className }: {
+  label: string; onConfirm: () => void; disabled?: boolean; children: ReactNode; className?: string
+}) {
+  const [armed, setArmed] = useState(false)
+  return (
+    <button
+      type="button"
+      disabled={disabled}
+      aria-label={armed ? `Confirmar: ${label}` : label}
+      title={armed ? 'Tocá de nuevo para eliminar' : label}
+      onClick={() => (armed ? onConfirm() : setArmed(true))}
+      onBlur={() => setArmed(false)}
+      className={cn(
+        'disabled:opacity-40',
+        armed ? 'bg-bad text-white hover:brightness-110' : 'text-muted hover:text-bad',
+        className,
+      )}
+    >
+      {children}
+    </button>
+  )
+}
+
 /** Control segmentado (toggle de 2-4 opciones). */
 export function Segmented<T extends string>({
   value,

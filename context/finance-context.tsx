@@ -18,7 +18,7 @@ type Action =
   | { type: 'importExpenses'; monthId: string; items: ExpenseItem[]; mode: 'append' | 'replace' }
   | { type: 'upsertIncome'; monthId: string; item: IncomeItem }
   | { type: 'deleteIncome'; monthId: string; id: string }
-  | { type: 'cloneLatest'; onlyFixed: boolean }
+  | { type: 'cloneMonth'; sourceId: string; onlyFixed: boolean }
   | { type: 'deleteMonth'; monthId: string }
   | { type: 'upsertHolding'; holding: Holding }
   | { type: 'deleteHolding'; id: string }
@@ -67,18 +67,22 @@ function reducer(state: FinanceState, action: Action): FinanceState {
       return editMonth(state, action.monthId, (m) => ({ ...m, incomes: upsert(m.incomes, action.item) }))
     case 'deleteIncome':
       return editMonth(state, action.monthId, (m) => ({ ...m, incomes: m.incomes.filter((i) => i.id !== action.id) }))
-    case 'cloneLatest': {
-      const source = latestMonth(state.months)
-      if (!source) return state
+    case 'cloneMonth': {
+      const source = state.months.find((m) => m.id === action.sourceId)
+      if (!source || state.months.some((m) => m.id === nextMonthId(source.id))) return state
       const month = cloneMonth(source, { onlyFixed: action.onlyFixed })
       return { ...state, months: sortMonths([...state.months, month]), currentMonthId: month.id }
     }
     case 'deleteMonth': {
       if (state.months.length <= 1) return state
       if (state.months.find((m) => m.id === action.monthId)?.locked) return state
-      const months = state.months.filter((m) => m.id !== action.monthId)
-      const currentMonthId =
-        state.currentMonthId === action.monthId ? latestMonth(months)!.id : state.currentMonthId
+      const sorted = sortMonths(state.months)
+      const index = sorted.findIndex((m) => m.id === action.monthId)
+      if (index === -1) return state
+      // Si se borra el mes visible, se pasa al siguiente (o al anterior si era el último).
+      const neighbor = sorted[index + 1] ?? sorted[index - 1]
+      const months = sorted.filter((m) => m.id !== action.monthId)
+      const currentMonthId = state.currentMonthId === action.monthId ? neighbor.id : state.currentMonthId
       return { ...state, months, currentMonthId }
     }
     case 'upsertHolding':
@@ -96,8 +100,10 @@ interface FinanceContextValue {
   state: FinanceState
   dispatch: React.Dispatch<Action>
   currentMonth: Month
-  /** Id del mes que se crearía con "Clonar mes anterior". */
+  /** Id del mes que se crearía clonando el mes visible. */
   nextCloneId: string
+  /** true si ese mes ya existe (no se puede clonar). */
+  nextCloneExists: boolean
 }
 
 const FinanceContext = createContext<FinanceContextValue | null>(null)
@@ -118,7 +124,11 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo<FinanceContextValue>(() => {
     const currentMonth = state.months.find((m) => m.id === state.currentMonthId) ?? latestMonth(state.months)!
-    return { state, dispatch, currentMonth, nextCloneId: nextMonthId(latestMonth(state.months)!.id) }
+    const nextCloneId = nextMonthId(currentMonth.id)
+    return {
+      state, dispatch, currentMonth, nextCloneId,
+      nextCloneExists: state.months.some((m) => m.id === nextCloneId),
+    }
   }, [state])
 
   if (!hydrated) {
