@@ -5,6 +5,7 @@ import { Plus, Trash2 } from 'lucide-react'
 import type { Currency, Holding, HoldingKind } from '@/types/finance'
 import { useFinance } from '@/context/finance-context'
 import { summarizePortfolio } from '@/lib/calc'
+import { normalizeDecimal } from '@/lib/money'
 import { monthLabel, newId } from '@/lib/months'
 import { CURRENCIES, HOLDING_KINDS, PLATFORMS } from '@/constants/catalog'
 import { HorizontalBars } from '@/components/charts'
@@ -17,9 +18,10 @@ function HoldingRow({ h }: { h: Holding }) {
   const save = (patch: Partial<Holding>) => dispatch({ type: 'upsertHolding', holding: { ...h, ...patch } })
   const [asset, setAsset] = useState<string | null>(null)
   const [qty, setQty] = useState<string | null>(null)
+  const [qtyInvalid, setQtyInvalid] = useState(false)
 
   return (
-    <li className="grid grid-cols-2 items-center gap-2 border-b border-border py-3 last:border-0 sm:grid-cols-[8rem_1fr_8rem_7rem_5rem_9rem_2rem]">
+    <li className="grid grid-cols-2 items-center gap-2 border-b border-border py-3 last:border-0 sm:grid-cols-[8rem_1fr_8rem_7rem_6rem_9rem_2rem]">
       <Select label="Plataforma" value={h.platform} options={[...new Set([...PLATFORMS, h.platform])]} onChange={(platform) => save({ platform })} />
       <input
         aria-label="Activo"
@@ -45,12 +47,16 @@ function HoldingRow({ h }: { h: Holding }) {
         onChange={(e) => setQty(e.target.value)}
         onBlur={() => {
           if (qty !== null) {
-            const n = Number(qty.replace(',', '.'))
+            const normalized = qty.trim() ? normalizeDecimal(qty) : '0'
+            const n = normalized === null ? NaN : Number(normalized)
+            setQtyInvalid(!(Number.isFinite(n) && n >= 0))
             if (Number.isFinite(n) && n >= 0) save({ quantity: n })
           }
           setQty(null)
         }}
-        className={cn(inputClass, 'tabular text-right')}
+        onKeyDown={(e) => e.key === 'Enter' && (e.target as HTMLInputElement).blur()}
+        aria-invalid={qtyInvalid}
+        className={cn(inputClass, 'tabular text-right', qtyInvalid && 'outline-2 outline-bad')}
       />
       <Select<Currency> label="Moneda" value={h.currency} options={CURRENCIES} onChange={(currency) => save({ currency })} />
       <MoneyInput label={`Valor actual de ${h.asset}`} cents={h.value} currency={h.currency} onCommit={(value) => save({ value })} />
@@ -149,7 +155,7 @@ export default function PortafolioPage() {
             <Plus className="size-3.5" /> Agregar activo
           </Button>
         </div>
-        <div className="hidden grid-cols-[8rem_1fr_8rem_7rem_5rem_9rem_2rem] gap-2 border-b border-border pb-2 text-[11px] font-medium uppercase tracking-wide text-muted sm:grid">
+        <div className="hidden grid-cols-[8rem_1fr_8rem_7rem_6rem_9rem_2rem] gap-2 border-b border-border pb-2 text-[11px] font-medium uppercase tracking-wide text-muted sm:grid">
           <span>Plataforma</span><span>Activo</span><span>Tipo</span><span className="text-right">Cantidad</span>
           <span>Moneda</span><span className="text-right">Valor actual</span><span />
         </div>

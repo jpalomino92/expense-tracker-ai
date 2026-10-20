@@ -75,6 +75,7 @@ function reducer(state: FinanceState, action: Action): FinanceState {
     }
     case 'deleteMonth': {
       if (state.months.length <= 1) return state
+      if (state.months.find((m) => m.id === action.monthId)?.locked) return state
       const months = state.months.filter((m) => m.id !== action.monthId)
       const currentMonthId =
         state.currentMonthId === action.monthId ? latestMonth(months)!.id : state.currentMonthId

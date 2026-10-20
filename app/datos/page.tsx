@@ -136,6 +136,10 @@ export default function DatosPage() {
                 setMsg({ kind: 'error', text: 'Tiene que quedar al menos un mes.' })
                 return
               }
+              if (currentMonth.locked) {
+                setMsg({ kind: 'error', text: 'El mes está cerrado: reabrilo para eliminarlo.' })
+                return
+              }
               dispatch({ type: 'deleteMonth', monthId: currentMonth.id })
               setMsg({ kind: 'ok', text: `${monthLabel(currentMonth.id)} eliminado.` })
             }}
