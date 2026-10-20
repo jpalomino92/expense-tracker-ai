@@ -1,0 +1,46 @@
+Actúa como un Arquitecto de Software Senior y Desarrollador Full-Stack especialista en aplicaciones Fintech familiares. Necesito construir una aplicación web moderna, rápida y muy fácil de usar (Mobile-First + Desktop) para reemplazar definitivamente nuestro Excel de finanzas familiares multimoneda.
+
+### 1. CONTEXTO DEL PROBLEMA Y LÓGICA DE NEGOCIO
+Somos una familia que se mudó de Argentina a España (Mallorca). Nuestras finanzas operan en **3 monedas simultáneas (USD, EUR y ARS)** y necesitamos gestionar el presupuesto mes a mes ("Presupuesto vs. Real") sin sufrir errores de fórmulas de Excel.
+
+#### A. Estructura de Ingresos y Enrutamiento (Routing)
+Recibimos ingresos mensuales por 3 vías principales:
+1. **Sweed (USD):** ~5.400 USD/mes (se usa principalmente para cubrir gastos en España en EUR y reservas/fondos; a veces pedimos "adelantos" que deben descontarse o trackearse claramente para no distorsionar el gasto real).
+2. **Harry (USD):** ~3.500 USD/mes (se divide entre transferencias a Wise/España y envíos a Argentina).
+3. **Nexup / Jennifer (ARS):** ~1.800.000 a 2.200.000 ARS/mes (ingreso local en pesos argentinos ideal para cubrir gastos remanentes en Argentina sin cambiar USD).
+
+#### B. Estructura de Egresos (Los 3 Bloques Mensuales)
+Cada mes se divide en 3 grandes bloques de gastos, y cada ítem tiene `Monto Presupuestado`, `Monto Real Pagado`, `Estado (Pendiente / Pagado / Parcial)`, `Pagado por / Fuente (Sweed, Harry, Nexup, Galicia, Wise)` y `Categoría`:
+1. **Bloque España (en EUR):** Alquiler (1.267 €), Comida (~1.000 €), Servicios desglosados (Luz, Agua, Teléfono/Internet), Salidas, Sueldos/Asignaciones personales libres de culpa (Sueldo Juan, Sueldo Jenni, Sueldo Paola, Mesada David), Salud/Mounjaro, Contador España, Reserva de Impuestos Autónomo (1.050 € - 1.500 €), Suscripciones/Apps (Netflix, YouTube, Kindle, Crunchyroll, Amazon, Google) y Adelantos Sweed.
+2. **Bloque Argentina (en ARS):** Gastos residuales en pesos (Psicólogas Juan/Jenni/Gaby, Mascotas, Tarjetas Visa/Master Juan y Jenni, Cuota Mónica, Contador AR, Monotributo / Ingresos Brutos, Auto/Seguro).
+3. **Bloque Fondos / Ahorro y Sinking Funds (en EUR):** Fondo de Emergencia, Fondo Diciembre/Navidad, Fondo Auto, Fondo David, Gym, Funcional Control y Medicaciones fijas.
+
+#### C. Módulo de Inversiones y Patrimonio ("Ahorro")
+Un panel simple para registrar saldos actuales por broker/plataforma (`Nexo Juan`, `Nexo Jenn`, `IBKR`) y por activo (`BTC`, `ETH`, `NEXO`, `UNI`, `XRP`, `QQQ`, `QQQM`, `VEA`, `VTI`, `MU`, `ANET`, `LLY`, `JNJ`, `SYP`), separando claramente el **Portafolio Volátil (Cripto/Acciones)** de la **Liquidez Disponible (Fondo de Emergencia en EUR/USD)**.
+
+---
+
+### 2. REQUERIMIENTOS FUNCIONALES CLAVE (ANTI-ERRORES DE EXCEL)
+1. **Motor Multimoneda Automático e Inmutable por Mes:**
+   - Cada mes guarda su propia foto de tipos de cambio configurables (ej. `1 USD = 1.401 a 1.500 ARS`, `1 EUR = 1.16 USD`, `1 USD = 0.85 EUR`).
+   - El sistema NUNCA debe sumar ARS + EUR + USD sin convertirlos antes.
+   - Debe mostrar todos los totales consolidados tanto en **USD** como en **EUR** con un simple toggle global.
+2. **Clonación Inteligente de Mes ("Iniciar Nuevo Mes"):**
+   - Como vamos ajustando el presupuesto mes a mes, quiero un botón **"Clonar Mes Anterior"** que copie todos los ítems fijos (Alquiler, Psicólogas, Sueldos personales, Suscripciones, Impuestos), ponga el `Real` en `0` y deje listos los montos `Presupuestados` para ajustarlos en 30 segundos.
+3. **Carga Rápida en 2 Clics ("1-Click Check"):**
+   - En la lista de gastos del mes, cada fila debe tener un botón rápido **"Marcar como Pagado (= Presupuesto)"** que copie automáticamente el valor presupuestado al campo `Real` con un solo clic, o permita editar el número si pagamos un monto distinto.
+4. **Calculadora de Enrutamiento de Liquidez (¿Cuánto mandar a dónde?):**
+   - Una tarjeta resumen que calcule automáticamente: *"Total a pagar en Argentina este mes: $X ARS -> Cubierto con Nexup ($Y ARS) + Enviar desde Harry:$Z USD"*, y *"Total a pagar en España + Fondos: X EUR"*.
+5. **Importador / Exportador JSON y CSV + Semilla Inicial:**
+   - Incluir datos de prueba precargados reales basados en nuestra estructura actual (Octubre, Noviembre, Diciembre y Enero) para que podamos usarla desde el minuto cero.
+
+---
+
+### 3. STACK TECNOLÓGICO Y ENTREGABLE
+- Crea una aplicación **React (Next.js App Router o artefacto React completo autocontenido con Tailwind CSS + Lucide Icons + Recharts)** con persistencia local (`localStorage` + exportación/importación de backup JSON) o estructura lista para conectar a Supabase/SQLite.
+- Diseño visual **Dark/Light Fintech limpio**, con tarjetas de KPI superiores:
+  1. `Ingreso Total del Mes (USD / EUR)`
+  2. `Total Presupuestado vs. Ejecutado Real (con barra de progreso)`
+  3. `Pendiente por Pagar del Mes`
+  4. `Desfase / Balance Libre Real (Superávit o Déficit en verde/rojo)`
+- Entrégame primero el código funcional completo de la interfaz con todas las pestañas (`Dashboard Mensual`, `Carga Detallada España / Argentina / Fondos`, `Ruteo de Cuentas`, `Portafolio de Inversión`), asegurándote de que todas las conversiones de moneda sean matemáticamente exactas.
